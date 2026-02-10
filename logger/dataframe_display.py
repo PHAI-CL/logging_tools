@@ -194,3 +194,17 @@
 
 #     else:
 #         raise ValueError("kwargs must specify a function")
+
+# import inspect
+
+# @staticmethod
+# def get_obj_name(obj: object) -> str:
+#     """Extract the name of an object"""
+#     frame = inspect.currentframe().f_back
+#     for name, value in frame.f_locals.items():
+#         if value is obj:
+#             obj_name = name
+#             break
+#     if not obj_name:
+#         raise ValueError("Could not determine the name of the object.")
+#     return obj_name

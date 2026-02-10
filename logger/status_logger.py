@@ -1,5 +1,4 @@
 """Functions to generate and store string artefacts for pipeline log"""
-import inspect
 from typing import Type
 
 
@@ -34,78 +33,123 @@ class Logger:
     ---------
     msg_count : int
         Message counter
-    log : str
-        Log string as shown in terminal
+    mem_msg : str
+        String to be kept in "memory" for inline animated progression
     max_digit : int
         Maximum digits to be expected for counter (determines left white space
         padding)
     left_offset : int
         The number of white spaces that offset message to the left
+    bold : bool
+        Whether to display message in bold font
+    Nullcolor: Type[Color]
+        Color to display message in; passed on by referencing the class
+        'Color', e.g. Color.RED (without quotation marks)
+    left_offset : int, optional
+        White space offset from left, by default 0
+    preceding_line : bool, optional
+        Message is preceded by a blank line, by default False
+    inline_print : bool, optional
+        Message is printed "inline", i.e. to animate within a line,
+        by default False
+    inline_reset : bool, optional
+        Inline print is reset, i.e., a new animation starts,
+        by default False
     """
+
     def __init__(self):
+
         self.msg_count = 0
-        self.log = ''
+        self.mem_msg = ''
         self.max_digit = 2
-        self.left_offset = self.max_digit + 2
+
+        self.bold: bool = False
+        self.color: Type[Color] = Color.BLACK
+        self.left_offset: int = 0
+        self.preceding_line: bool = False
+        self.inline_print: bool = False
+        self.inline_reset: bool = False
 
     def _log_print(
             self,
-            str_output: str,
-            bold: bool,
-            color: Type[Color],
-            left_offset: int = 0):
+            line_output: str,
+            **kwargs
+            ):
         """Log and print string
 
         Parameters
         ----------
-        str_output : str
+        line_output : str
             String message to be logged and printed
-        bold : bool
-            Whether to display message in bold font
-        Nullcolor: Type[Color]
-            Color to display message in; passed on by referencing the class
-            'Color', e.g. Color.RED (without quotation marks)
-        left_offset : int, optional
-            White space offset from left, by default 0
         """
 
-        str_output = (" " * left_offset) + str_output
-        # self.log = self.log + str_output + "\n"
+        bold = kwargs.get('bold', self.bold)
+        color = kwargs.get('color', self.color)
+        left_offset = kwargs.get('left_offset', self.left_offset)
+        preceding_line = kwargs.get('preceding_line', self.preceding_line)
+        inline_print = kwargs.get('inline_print', self.inline_print)
+        inline_reset = kwargs.get('inline_reset', self.inline_reset)
 
-        if (not bold) & (not color):
-            print(str_output)
+        if preceding_line:
+            print('')
+
+        line_output = (" " * left_offset) + line_output
+
+        if inline_print:
+            if inline_reset or self.mem_msg == '':
+                self.mem_msg = line_output
+            else:
+                self.mem_msg = f"{self.mem_msg} > {line_output}"
+
+            if (not bold) & (not color):
+                print(f"\r{self.mem_msg}", end='', flush=True)
+            else:
+                if bold and color:
+                    print(f"\r{Color.BOLD}{color}{self.mem_msg}{Color.END}",
+                          end='', flush=True)
+                elif bold:
+                    print(f"\r{Color.BOLD}{self.mem_msg}{Color.END}",
+                          end='', flush=True)
+                elif color:
+                    print(f"\r{color}{self.mem_msg}{Color.END}",
+                          end='', flush=True)
         else:
-            if bold and color:
-                print(f"{Color.BOLD}{color}{str_output}{Color.END}")
-            elif bold:
-                print(f"{Color.BOLD}{str_output}{Color.END}")
-            elif color:
-                print(f"{color}{str_output}{Color.END}")
+            if (not bold) & (not color):
+                print(line_output)
+            else:
+                if bold and color:
+                    print(f"{Color.BOLD}{color}{line_output}{Color.END}")
+                elif bold:
+                    print(f"{Color.BOLD}{line_output}{Color.END}")
+                elif color:
+                    print(f"{color}{line_output}{Color.END}")
 
-    def l_print(self,
-                msg: str,
-                bold: bool = False,
-                color: Type[Color] = None) -> None:
+    def l_print(self, msg: str, **kwargs) -> None:
         """Print left offset message in pipeline log"""
-        self._log_print(str_output=msg, left_offset=self.left_offset,
-                        bold=bold, color=color)
+        left_offset = self.max_digit + 2
+        self._log_print(line_output=msg, left_offset=left_offset, **kwargs)
 
-    def i_print(self,
-                msg: str,
-                bold: bool = False,
-                color: Type[Color] = None) -> None:
+    def i_print(self, msg: str, counter_reset: bool = False, **kwargs) -> None:
         """Print numerated message in pipeline log"""
-        self.msg_count += 1
-        str_output = f"{self.msg_count:{self.max_digit}}. {msg}"
-        self._log_print(str_output=str_output, bold=bold, color=color)
+        if counter_reset:
+            self.msg_count = 1
+        else:
+            self.msg_count += 1
+
+        line_output = f"{self.msg_count:{self.max_digit}}. {msg}"
+        self._log_print(line_output=line_output, **kwargs)
+
+    def inline_end(self):
+        self._log_print(
+            line_output='', preceding_line=True, inline_print=True,
+            inline_reset=True)
 
     def gen_log_header(
             self,
             header: str,
             fill_symbol: str = '*',
             header_len: int = 80,
-            bold: bool = False,
-            color: Type[Color] = None) -> None:
+            **kwargs) -> None:
         """Print a header centered within a header banner of fill symbold
 
         Parameters
@@ -121,23 +165,13 @@ class Logger:
         Nullcolor: Type[Color]
             Color to display message in; passed on by referencing the class
             'Color', e.g. Color.RED (without quotation marks)
+        preceding_line : bool, optional
+            Message is preceded by a blank line, by default 0
         """
         fill_len = int((header_len - len(header) - 2) / 2)
-        str_output = "\n" + (fill_symbol*fill_len) + " " + header + " " + (
+        line_output = "\n" + (fill_symbol*fill_len) + " " + header + " " + (
             fill_symbol*fill_len)
-        self._log_print(str_output=str_output, bold=bold, color=color)
-
-    @staticmethod
-    def get_obj_name(obj: object) -> str:
-        """Extract the name of an object"""
-        frame = inspect.currentframe().f_back
-        for name, value in frame.f_locals.items():
-            if value is obj:
-                obj_name = name
-                break
-        if not obj_name:
-            raise ValueError("Could not determine the name of the object.")
-        return obj_name
+        self._log_print(line_output=line_output, **kwargs)
 
 
 logger = Logger()

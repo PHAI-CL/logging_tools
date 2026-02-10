@@ -10,6 +10,9 @@ def main():
 
     print("Done!")
 
+    # TODO: Inline and inplace animation (e.g. hour glass)
+    # TODO: Parameterize the symbol inbetween inline steps.
+
 
 if __name__ == "__main__":
     main()

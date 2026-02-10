@@ -27,6 +27,8 @@ class TestCodeOne:
         t_two = TestCodeTwo(pause=self.pause)
 
         t_two.path_two()
+        t_two.path_three()
+        t_two.path_four()
 
         logger.gen_log_header(
                 header="END PROCESS",
