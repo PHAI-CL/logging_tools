@@ -31,18 +31,19 @@ class Logger:
 
     Atributes
     ---------
-    msg_count : int
-        Message counter
-    mem_msg : str
-        String to be kept in "memory" for inline animated progression
-    max_digit : int
+    msg_count : int, optional
+        Message counter, by default 0
+    mem_msg : str, optional
+        String to be kept in "memory" for inline animated progression,
+        by default ''
+    max_digit : int, optional
         Maximum digits to be expected for counter (determines left white space
-        padding)
+        padding), by default 2
     left_offset : int
         The number of white spaces that offset message to the left
-    bold : bool
-        Whether to display message in bold font
-    Nullcolor: Type[Color]
+    bold : bool, optional
+        Whether to display message in bold font, by default False
+    color: Type[Color]
         Color to display message in; passed on by referencing the class
         'Color', e.g. Color.RED (without quotation marks)
     left_offset : int, optional
@@ -55,6 +56,15 @@ class Logger:
     inline_reset : bool, optional
         Inline print is reset, i.e., a new animation starts,
         by default False
+    inline_sep : str, optional
+        Symbol separating messages in inline animation,
+        by default '>'
+    inline_inplace : bool, optional
+        Whether inline messaging overwrites string or is added on to previous
+        message, by default False
+    inline_color: Type[Color], optional
+        Color to display in inline message, by default None
+
     """
 
     def __init__(self):
@@ -66,13 +76,24 @@ class Logger:
         self.bold: bool = False
         self.color: Type[Color] = Color.BLACK
         self.left_offset: int = 0
+        self.start_inline: bool = False
+        self.inline_on: bool = False
         self.preceding_line: bool = False
-        self.inline_print: bool = False
-        self.inline_reset: bool = False
+
+    def _format_text(self, msg: str, bold: bool, color: Type[Color]) -> str:
+        if (not bold) & (not color):
+            return msg
+        else:
+            if bold and color:
+                return f"{Color.BOLD}{color}{msg}{Color.END}"
+            elif bold:
+                return f"{Color.BOLD}{msg}{Color.END}"
+            elif color:
+                return f"{color}{msg}{Color.END}"
 
     def _log_print(
             self,
-            line_output: str,
+            msg: str,
             **kwargs
             ):
         """Log and print string
@@ -86,48 +107,31 @@ class Logger:
         bold = kwargs.get('bold', self.bold)
         color = kwargs.get('color', self.color)
         left_offset = kwargs.get('left_offset', self.left_offset)
+        inline_on = kwargs.get('inline_on', self.inline_on)
+        start_inline = kwargs.get('start_inline', self.start_inline)
         preceding_line = kwargs.get('preceding_line', self.preceding_line)
-        inline_print = kwargs.get('inline_print', self.inline_print)
-        inline_reset = kwargs.get('inline_reset', self.inline_reset)
 
         if preceding_line:
             print('')
 
-        line_output = (" " * left_offset) + line_output
+        if inline_on:
+            self.inline_on = False
+            print('')
 
-        if inline_print:
-            if inline_reset or self.mem_msg == '':
-                self.mem_msg = line_output
-            else:
-                self.mem_msg = f"{self.mem_msg} > {line_output}"
+        msg = (" " * left_offset) + msg
 
-            if (not bold) & (not color):
-                print(f"\r{self.mem_msg}", end='', flush=True)
-            else:
-                if bold and color:
-                    print(f"\r{Color.BOLD}{color}{self.mem_msg}{Color.END}",
-                          end='', flush=True)
-                elif bold:
-                    print(f"\r{Color.BOLD}{self.mem_msg}{Color.END}",
-                          end='', flush=True)
-                elif color:
-                    print(f"\r{color}{self.mem_msg}{Color.END}",
-                          end='', flush=True)
+        line_output = self._format_text(msg, bold, color)
+        self.mem_msg = line_output
+        if start_inline:
+            self.inline_on = True
+            print(f"\r{line_output}", end='', flush=True)
         else:
-            if (not bold) & (not color):
-                print(line_output)
-            else:
-                if bold and color:
-                    print(f"{Color.BOLD}{color}{line_output}{Color.END}")
-                elif bold:
-                    print(f"{Color.BOLD}{line_output}{Color.END}")
-                elif color:
-                    print(f"{color}{line_output}{Color.END}")
+            print(line_output)
 
     def l_print(self, msg: str, **kwargs) -> None:
         """Print left offset message in pipeline log"""
         left_offset = self.max_digit + 2
-        self._log_print(line_output=msg, left_offset=left_offset, **kwargs)
+        self._log_print(msg=msg, left_offset=left_offset, **kwargs)
 
     def i_print(self, msg: str, counter_reset: bool = False, **kwargs) -> None:
         """Print numerated message in pipeline log"""
@@ -136,13 +140,34 @@ class Logger:
         else:
             self.msg_count += 1
 
-        line_output = f"{self.msg_count:{self.max_digit}}. {msg}"
-        self._log_print(line_output=line_output, **kwargs)
+        msg = f"{self.msg_count:{self.max_digit}}. {msg}"
+        self._log_print(msg=msg, **kwargs)
 
-    def inline_end(self):
-        self._log_print(
-            line_output='', preceding_line=True, inline_print=True,
-            inline_reset=True)
+    def r_print(
+            self,
+            msg: str,
+            inline_sep: str = ' > ',
+            inline_inplace: bool = False,
+            **kwargs
+            ) -> None:
+        """Print inline message in pipeline log"""
+        bold = kwargs.get('bold', self.bold)
+        color = kwargs.get('color', self.color)
+
+        inline_msg = self._format_text(msg, bold, color)
+        line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
+
+        if inline_inplace is False:
+            # Inline message is added onto end of previous inline message
+            # (else inline message replaces previous inline message)
+            self.mem_msg = line_output
+
+        print(f"\r{line_output}", end='', flush=True)
+
+    # def inline_end(self):
+    #     self._log_print(
+    #         msg='', preceding_line=True, inline_print=True,
+    #         inline_reset=True)
 
     def gen_log_header(
             self,
@@ -160,18 +185,11 @@ class Logger:
             Symbol to fill the header banner, by default '*'
         header_len : int, optional
             Length of the header banner, by default 80
-        bold : bool
-            Whether to display message in bold font
-        Nullcolor: Type[Color]
-            Color to display message in; passed on by referencing the class
-            'Color', e.g. Color.RED (without quotation marks)
-        preceding_line : bool, optional
-            Message is preceded by a blank line, by default 0
         """
         fill_len = int((header_len - len(header) - 2) / 2)
-        line_output = "\n" + (fill_symbol*fill_len) + " " + header + " " + (
+        msg = "\n" + (fill_symbol*fill_len) + " " + header + " " + (
             fill_symbol*fill_len)
-        self._log_print(line_output=line_output, **kwargs)
+        self._log_print(msg=msg, **kwargs)
 
 
 logger = Logger()
