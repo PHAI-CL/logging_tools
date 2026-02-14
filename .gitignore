@@ -3,6 +3,7 @@
 
 # test folder - not needed for package
 test/
+tests/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
