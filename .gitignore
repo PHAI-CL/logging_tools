@@ -1,6 +1,9 @@
 # mac specific
 .DS_Store
 
+# test folder - not needed for package
+test/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
