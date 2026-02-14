@@ -1,8 +1,9 @@
 import time
+
 from logger.status_logger import Color, logger
 
 
-class TestCodeTwo:
+class TestCodeRed:
     def __init__(self, pause: int = 5):
         self.pause = pause
 
@@ -24,7 +25,8 @@ class TestCodeTwo:
             "resetting counter in path_three",
             color=Color.YELLOW,
             counter_reset=True,
-            preceding_line=True)
+            preceding_line=True,
+        )
 
     def path_four(self):
 

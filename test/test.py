@@ -1,10 +1,11 @@
 """Test CRM upload process"""
+
 import test_mod_one as tmo
 
 
 def main():
 
-    t_one = tmo.TestCodeOne(pause=1)
+    t_one = tmo.TestCodeBlue(pause=1)
 
     t_one.path_one()
 

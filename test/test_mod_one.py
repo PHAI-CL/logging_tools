@@ -1,9 +1,11 @@
 import time
-from test_mod_two import TestCodeTwo
+
+from test_mod_two import TestCodeRed
+
 from logger.status_logger import Color, logger
 
 
-class TestCodeOne:
+class TestCodeBlue:
     def __init__(self, pause: int = 5):
         self.pause = pause
 
@@ -14,24 +16,24 @@ class TestCodeOne:
     def path_one(self):
 
         logger.gen_log_header(
-                header="START PROCESS",
-                fill_symbol="#",
-                color=Color.PURPLE,
-            )
+            header="START PROCESS",
+            fill_symbol="#",
+            color=Color.PURPLE,
+        )
 
         time.sleep(self.pause)
         logger.i_print("path_one", color=Color.BLUE)
 
         self._helper_fct()
 
-        t_two = TestCodeTwo(pause=self.pause)
+        t_two = TestCodeRed(pause=self.pause)
 
         t_two.path_two()
         t_two.path_three()
         t_two.path_four()
 
         logger.gen_log_header(
-                header="END PROCESS",
-                fill_symbol="#",
-                color=Color.PURPLE,
-            )
+            header="END PROCESS",
+            fill_symbol="#",
+            color=Color.PURPLE,
+        )
