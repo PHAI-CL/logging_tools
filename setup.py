@@ -7,6 +7,6 @@ if __name__ == "__main__":
     setup(
         name="logger",
         version="0.1",
-        description="Logger",
+        description="Logging Tools",
         packages=setuptools.find_packages(exclude=["*tests*"]),
     )
