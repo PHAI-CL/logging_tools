@@ -1,6 +1,5 @@
 """Functions to generate and store string artefacts for pipeline log"""
 from typing import Type
-from logger.timer import Timer
 
 
 class Color:
@@ -80,7 +79,6 @@ class Logger:
         self.start_inline: bool = False
         self.inline_on: bool = False
         self.preceding_line: bool = False
-        self.tmr = Timer(total_count=1)
 
     def _format_text(self, msg: str, bold: bool, color: Type[Color]) -> str:
         if (not bold) & (not color):
@@ -166,31 +164,6 @@ class Logger:
             self.mem_msg = line_output
 
         print(f"\r{line_output}", end='', flush=True)
-
-    def t_print(self,
-                msg: str,
-                total_count: int,
-                counter_reset: bool = False,
-                **kwargs
-                ) -> None:
-        """Print numerated message with estimated remaining time"""
-        if counter_reset:
-            self.msg_count = 1
-        else:
-            self.msg_count += 1
-
-        if self.msg_count == 1:
-            self.tmr = Timer(total_count=total_count)
-
-        est_time = self.tmr.get_est_remaining(iter_completed=self.msg_count)
-
-        msg = f"{self.msg_count:{self.max_digit}}. [{est_time}] {msg}"
-        self._log_print(msg=msg, **kwargs)
-
-    # def inline_end(self):
-    #     self._log_print(
-    #         msg='', preceding_line=True, inline_print=True,
-    #         inline_reset=True)
 
     def gen_log_header(
             self,
