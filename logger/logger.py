@@ -1,5 +1,6 @@
 """Functions to generate and store string artefacts for pipeline log"""
 from typing import Type
+import re
 
 
 class Color:
@@ -144,6 +145,13 @@ class Logger:
         msg = f"{self.msg_count:{self.max_digit}}. {msg}"
         self._log_print(msg=msg, **kwargs)
 
+    def _get_len_mem_msg(self):
+        """Returns length of self.mem_msg without the color codes"""
+        # Regex to match ANSI escape sequences like \x1b[93m or \x1b[0m
+        ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+        # Substitute them with an empty string and return the len of text only
+        return len(ansi_escape.sub('', self.mem_msg))
+
     def r_print(
             self,
             msg: str,
@@ -161,7 +169,7 @@ class Logger:
         if msg_pos is None:
             line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
         else:
-            mem_msg_len = len(self.mem_msg)
+            mem_msg_len = self._get_len_mem_msg()
             if msg_pos > mem_msg_len:
                 blnk_multplr = msg_pos - mem_msg_len
             else:
@@ -169,6 +177,8 @@ class Logger:
 
             line_output =\
                 f"{self.mem_msg}{' ' * blnk_multplr}{inline_sep}{inline_msg}"
+
+            blnk_multplr = 0
 
         if inline_inplace is False:
             # Inline message is added onto end of previous inline message
