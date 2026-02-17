@@ -149,6 +149,7 @@ class Logger:
             msg: str,
             inline_sep: str = ' > ',
             inline_inplace: bool = False,
+            msg_pos: int = None,
             **kwargs
             ) -> None:
         """Print inline message in pipeline log"""
@@ -156,7 +157,12 @@ class Logger:
         color = kwargs.get('color', self.color)
 
         inline_msg = self._format_text(msg, bold, color)
-        line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
+
+        if msg_pos is None:
+            line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
+        else:
+            line_output =\
+                f"{self.mem_msg}{' ' * msg_pos}{inline_sep}{inline_msg}"
 
         if inline_inplace is False:
             # Inline message is added onto end of previous inline message
