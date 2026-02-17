@@ -161,8 +161,14 @@ class Logger:
         if msg_pos is None:
             line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
         else:
+            mem_msg_len = len(self.mem_msg)
+            if msg_pos > mem_msg_len:
+                blnk_multplr = msg_pos - mem_msg_len
+            else:
+                blnk_multplr = 0
+
             line_output =\
-                f"{self.mem_msg}{' ' * msg_pos}{inline_sep}{inline_msg}"
+                f"{self.mem_msg}{' ' * blnk_multplr}{inline_sep}{inline_msg}"
 
         if inline_inplace is False:
             # Inline message is added onto end of previous inline message
