@@ -4,6 +4,7 @@
 # test folder - not needed for package
 test/
 tests/
+scratch/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
