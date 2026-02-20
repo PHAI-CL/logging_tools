@@ -12,6 +12,7 @@ certifi==2026.1.4
 cffi==2.0.0
 charset-normalizer==3.4.4
 comm==0.2.3
+connectors @ git+https://github.com/PHAI-CL/connection_tools.git@6391524f2d0366c9a543fcc5a96366d10165d2bd
 debugpy==1.8.20
 decorator==5.2.1
 defusedxml==0.7.1
@@ -42,7 +43,7 @@ jupyterlab==4.5.3
 jupyterlab_pygments==0.3.0
 jupyterlab_server==2.28.0
 lark==1.3.1
--e git+https://github.com/PHAI-CL/logging_tools.git@83c23e0732575bde316999317cb6b0135f30e843#egg=logger
+-e git+https://github.com/PHAI-CL/logging_tools.git@75b82e09e3f871eaaec4d783067fecb13532f71a#egg=logger
 MarkupSafe==3.0.3
 matplotlib-inline==0.2.1
 mistune==3.2.0
@@ -51,10 +52,13 @@ nbconvert==7.17.0
 nbformat==5.10.4
 nest-asyncio==1.6.0
 notebook_shim==0.2.4
+numpy==2.2.6
 overrides==7.7.0
 packaging==26.0
+pandas==2.3.3
 pandocfilters==1.5.1
 parso==0.8.5
+pathfinder @ git+https://github.com/PHAI-CL/path_finder.git@8377c553b329e73e85cab0f3015f3fb60f8f5500
 pexpect==4.9.0
 platformdirs==4.5.1
 prometheus_client==0.24.1
@@ -66,6 +70,7 @@ pycparser==3.0
 Pygments==2.19.2
 python-dateutil==2.9.0.post0
 python-json-logger==4.0.0
+pytz==2025.2
 PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.37.0
