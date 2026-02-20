@@ -1,6 +1,7 @@
 """Functions to generate and store string artefacts for pipeline log"""
 from typing import Type
 import re
+from connectors import YamlConnector
 
 
 class Color:
@@ -70,16 +71,17 @@ class Logger:
 
     def __init__(self):
 
-        self.msg_count = 0
-        self.mem_msg = ''
-        self.max_digit = 2
+        params_dict = YamlConnector().get_dict_from_yaml('logger_params.yaml')
 
-        self.bold: bool = False
-        self.color: Type[Color] = Color.BLACK
-        self.left_offset: int = 0
-        self.start_inline: bool = False
-        self.inline_on: bool = False
-        self.preceding_line: bool = False
+        self.msg_count = params_dict['logger']['msg_count']
+        self.mem_msg = params_dict['logger']['mem_msg']
+        self.max_digit = params_dict['logger']['max_digit']
+        self.bold = params_dict['logger']['bold']
+        self.color = params_dict['logger']['color']
+        self.left_offset = params_dict['logger']['left_offset']
+        self.start_inline = params_dict['logger']['start_inline']
+        self.inline_on = params_dict['logger']['inline_on']
+        self.preceding_line = params_dict['logger']['preceding_line']
 
     def _format_text(self, msg: str, bold: bool, color: Type[Color]) -> str:
         if (not bold) & (not color):

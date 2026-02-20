@@ -1,6 +1,7 @@
 """ Modulae for time related functions"""
 import time
 from datetime import timedelta
+from connectors import YamlConnector
 
 
 class Timer:
@@ -19,12 +20,14 @@ class Timer:
 
     def __init__(
             self,
-            total_count: int,
-            index_start: int = 0
+            total_count: int
             ) -> None:
+
         self.start_time = time.time()
         self.total_count = total_count
-        self.index_start = index_start
+
+        params_dict = YamlConnector().get_dict_from_yaml('logger_params.yaml')
+        self.index_start = params_dict['timer']['index_start']
 
     def get_est_remaining(self, iter_completed: int) -> str:
         """Return estimated time remaining based on average time per iteration.
