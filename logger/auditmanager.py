@@ -10,7 +10,7 @@ class AuditManager:
 
         params_dict = YamlConnector().get_dict_from_yaml('logger_params.yaml')
         audit_folder = params_dict['auditmanager']['audit_folder']
-        audit_folder_path = AbsolutePathFinder().get_file_path(audit_folder)
+        audit_folder_path = AbsolutePathFinder().get_folder_path(audit_folder)
         log_file_path = f"{audit_folder_path}/audit_trail.txt"
 
         self.audit = logging.getLogger("audit_manager")
