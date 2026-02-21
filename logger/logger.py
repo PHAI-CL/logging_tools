@@ -71,13 +71,13 @@ class Logger:
 
     def __init__(self):
 
-        params_dict = YamlConnector().get_dict_from_yaml('logger_params.yaml')
+        self.color = Color.BLACK
 
+        params_dict = YamlConnector().get_dict_from_yaml('logger_params.yaml')
         self.msg_count = params_dict['logger']['msg_count']
         self.mem_msg = params_dict['logger']['mem_msg']
         self.max_digit = params_dict['logger']['max_digit']
         self.bold = params_dict['logger']['bold']
-        self.color = params_dict['logger']['color']
         self.left_offset = params_dict['logger']['left_offset']
         self.start_inline = params_dict['logger']['start_inline']
         self.inline_on = params_dict['logger']['inline_on']
