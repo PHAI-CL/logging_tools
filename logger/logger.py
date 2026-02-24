@@ -2,6 +2,7 @@
 from typing import Type
 import re
 from connectors import YamlConnector
+import unicodedata
 
 
 class Color:
@@ -149,10 +150,22 @@ class Logger:
 
     def _get_len_mem_msg(self):
         """Returns length of self.mem_msg without the color codes"""
-        # Regex to match ANSI escape sequences like \x1b[93m or \x1b[0m
+        # 1. Regex to match ANSI escape sequences like \x1b[93m or \x1b[0m
         ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
-        # Substitute them with an empty string and return the len of text only
-        return len(ansi_escape.sub('', self.mem_msg))
+        # ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+        # 2. Create a "clean" version of the message to calculate width
+        plain_msg = ansi_escape.sub('', self.mem_msg)
+
+        # 3. Calculate visual width of the clean text
+        visual_len = 0
+        for char in plain_msg:
+            if unicodedata.east_asian_width(char) in ('W', 'F'):
+                visual_len += 2
+            else:
+                visual_len += 1
+
+        return visual_len
 
     def r_print(
             self,
