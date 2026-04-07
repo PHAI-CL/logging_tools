@@ -148,14 +148,15 @@ class Logger:
         msg = f"{self.msg_count:{self.max_digit}}. {msg}"
         self._log_print(msg=msg, **kwargs)
 
-    def _get_len_mem_msg(self):
-        """Returns length of self.mem_msg without the color codes"""
+    @staticmethod
+    def _get_len_mem_msg(line_start):
+        """Returns length of line_start without the color codes"""
         # 1. Regex to match ANSI escape sequences like \x1b[93m or \x1b[0m
         ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
         # ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
         # 2. Create a "clean" version of the message to calculate width
-        plain_msg = ansi_escape.sub('', self.mem_msg)
+        plain_msg = ansi_escape.sub('', line_start)
 
         # 3. Calculate visual width of the clean text
         visual_len = 0
@@ -170,6 +171,7 @@ class Logger:
     def r_print(
             self,
             msg: str,
+            prev_inline_fragment: str = None,
             inline_sep: str = ' > ',
             inline_inplace: bool = False,
             msg_pos: int = None,
@@ -181,17 +183,24 @@ class Logger:
 
         inline_msg = self._format_text(msg, bold, color)
 
-        if msg_pos is None:
-            line_output = f"{self.mem_msg}{inline_sep}{inline_msg}"
+        if prev_inline_fragment is None:
+            line_start = self.mem_msg
         else:
-            mem_msg_len = self._get_len_mem_msg()
+            prev_inline_fragment = self._format_text(
+                prev_inline_fragment, bold, color)
+            line_start = f'{self.mem_msg}{prev_inline_fragment}'
+
+        if msg_pos is None:
+            line_output = f"{line_start}{inline_sep}{inline_msg}"
+        else:
+            mem_msg_len = self._get_len_mem_msg(line_start)
             if msg_pos > mem_msg_len:
                 blnk_multplr = msg_pos - mem_msg_len
             else:
                 blnk_multplr = 0
 
             line_output =\
-                f"{self.mem_msg}{' ' * blnk_multplr}{inline_sep}{inline_msg}"
+                f"{line_start}{' ' * blnk_multplr}{inline_sep}{inline_msg}"
 
             blnk_multplr = 0
 
