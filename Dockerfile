@@ -9,17 +9,20 @@ ENV PYTHONUNBUFFERED=1
 
 # Set the working directory and PYTHONPATH
 WORKDIR /opt/project
-ENV PYTHONPATH "${PYTHONPATH}:/opt/project"
+ENV PYTHONPATH="/opt/project"
+
+# Upgrade pip first
+RUN pip install --upgrade pip
 
 # Copy project files to /opt/project
 COPY . /opt/project
 
 # Install pip requirements
-RUN python -m pip install -r /opt/project/requirements.txt
+RUN pip install -r /opt/project/requirements.txt
 
 # Install Jupyterlab
 RUN pip install jupyterlab
 EXPOSE 8888
 
 # Start the Jupyter server
-CMD jupyter lab --ip 0.0.0.0 --allow-root --no-browser --notebook-dir='/opt/project'
+CMD ["jupyter", "lab", "--ip", "0.0.0.0", "--allow-root", "--no-browser", "--notebook-dir=/opt/project"]
